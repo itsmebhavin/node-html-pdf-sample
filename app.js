@@ -10,7 +10,20 @@ var pdf = require('html-pdf');
 var html = fs.readFileSync('./public/clerknotes/index.html', 'utf8');
 var loremhtml = fs.readFileSync('./lorem_tmpl.html', 'utf8');
 
-var options = { format: 'Letter' };
+var report_options =
+{
+    "format": "Letter",
+    "border": {
+        "top": "0.5in",
+        "right": "1in",
+        "bottom": "0in",
+        "left": "1in"
+    },
+    "footer": {
+        "contents": '<span style="color: #444;">Page {{page}}</span>/<span>{{pages}}</span>'
+    }
+};
+
 
 var app = express();
 
@@ -43,7 +56,16 @@ app.use(function (req, res, next) {
 
 app.get('/api/printpdf1', function (req, res) {
     console.log('request made....print 1 ');
-    pdf.create(html).toStream(function(err, stream){
+    var data = {
+        ticketNum : 12121212,
+        dateIssued: '2014-04-02',
+        personName: 'John Doe',
+        notes:' Lorem Ipsum Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ultricies metus ut molestie varius. Aliquam at dui aliquam, eleifend nisl sed, interdum tellus. Nulla in suscipit dolor, eu vehicula nunc. Duis vulputate, odio a accumsan volutpat, orci nisl rutrum lorem, at ultricies tortor enim quis sem. Aenean eget quam tortor. Nulla sollicitudin eleifend magna et tincidunt. Suspendisse quis fringilla eros. Vivamus id purus lacinia, consectetur ex nec, tincidunt quam. Sed vitae augue posuere odio varius pellentesque.'
+    };
+
+    //TODO: pass this data object json to html to print this data.
+
+    pdf.create(html,report_options).toStream(function(err, stream){
         console.log(stream);
         stream.pipe(res);
     });
