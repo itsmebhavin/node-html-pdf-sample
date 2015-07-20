@@ -12,7 +12,7 @@ Middleware/libraries used in this sample project -
 * [AngularJS] - HTML enhanced for web apps!
 * [node.js] - evented I/O for the backend
 * [Express] - fast node.js network app framework [@tjholowaychuk]
-* [node-html-pdf] - Html to pdf converter in nodejs. It spawns a phantomjs process and passes the pdf as buffer or as filename.
+* [node-html-pdf] - Html to pdf converter in nodejs. It spawns a phantomjs process and passes the pdf as buffer or as filename. (sits on top of the Phantom.js)
 * [Body-Parser] - npm body-parser for node.js API 
 
 ### Installation
