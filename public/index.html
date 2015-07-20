@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html ng-app="nodehtmlpdfdemo">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>node-html-pdf demo page.</title>
+</head>
+<body ng-controller="indexCtrl">
+
+    <h2>{{name}}</h2>
+    <h3>$> {{package}}</h3>
+    <a ng-href="github">{{github}}</a>
+    <h5>{{demoapp}}</h5>
+    <button type="button" ng-click="printPdf()">Print PDF in new window</button>
+    <h1 ng-if="loading">....Loding....</h1>
+    <object data="{{content}}" style="width:100%;height:700px;" type="application/pdf"></object>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+    <script>
+        var app = angular.module('nodehtmlpdfdemo',[]);
+        app.controller('indexCtrl',function($scope,$http,$q, $sce){
+            $scope.name = "Hello World: node-html-pdf";
+            $scope.package = "npm install --save html-pdf;";
+            $scope.github = "https://github.com/marcbachmann/node-html-pdf";
+            $scope.demoapp = "";
+
+            $scope.getPDF = function(){
+                $scope.loading = true;
+                var q = $q.defer();
+                $http.defaults.headers.common['content-type']= 'application/pdf';
+                $http.get('/api/printpdf1', {responseType:'arraybuffer'})
+                        .success(function (response) {
+                            console.log(response);
+                            var file = new Blob([response], {type: 'application/pdf'});
+                            var fileURL = URL.createObjectURL(file);
+                            $scope.loading = false;
+                            q.resolve(fileURL);
+                        })
+                        .error(function(err){
+                            $scope.loading = false;
+                            q.reject(err);
+                        });
+                return q.promise;
+            };
+
+            $scope.printPdf = function(){
+                console.log('printing pdf...');
+                $scope.getPDF().then(function(response){
+                    console.log(response);
+                    window.open(response);
+                },function(err){
+                    console.log('Error: ' + err);
+                });
+
+            };
+
+            $scope.getPDF().then(function(response){
+                console.log(response);
+                $scope.content = $sce.trustAsResourceUrl(response);
+            },function(err){
+                console.log('Error: ' + err);
+            });
+
+
+
+
+
+
+        });
+    </script>
+</body>
+</html>
