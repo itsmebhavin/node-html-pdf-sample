@@ -3,7 +3,7 @@
 Sample application for print pdf from node.js using middleware called 'node-html-pdf'. 
 
 ### Version
-1.0.0
+1.0.1
 
 ### Tech
 
