@@ -12,8 +12,11 @@ Middleware/libraries used in this sample project -
 * [AngularJS] - HTML enhanced for web apps!
 * [node.js] - evented I/O for the backend
 * [Express] - fast node.js network app framework [@tjholowaychuk]
-* [node-html-pdf] - Html to pdf converter in nodejs. It spawns a phantomjs process and passes the pdf as buffer or as filename. (sits on top of the Phantom.js)
+* [node-html-pdf] - Html to pdf converter in nodejs. It spawns a phantomjs process and passes the pdf as buffer or as filename.
 * [Body-Parser] - npm body-parser for node.js API 
+* [nunjucks] - A rich and powerful templating language for JavaScript.
+    * npm install --save nunjucks 
+
 
 ### Installation
 
@@ -21,6 +24,7 @@ Middleware/libraries used in this sample project -
 $ npm install --save express
 $ npm install --save body-parser
 $ npm install --save html-pdf (main node-html-pdf npm command)
+$ npm install --save nunjucks
 ```
 
 ### Server side node.js API code
@@ -31,10 +35,38 @@ var http = require('http');
 var fs = require('fs');
 var bodyParser = require('body-parser');
 var pdf = require('html-pdf');
+//nunjucks templating 
+var nunjucks = require('nunjucks');
 //html file which you want to convert into pdf.
 var html = fs.readFileSync('./businesscard_tmpl.html', 'utf8')
 
+//Nunjucks is a product from Mozilla and we are using it as a template engine.
+nunjucks.configure('public', {
+    autoescape: true,
+    express: app
+});
+
 app.get('/api/printpdf1', function (req, res) {
+    console.log('request made....print 1 ');
+    var today = new Date();
+    var obj = {
+        date: today,
+        data:{
+            ticketnum : 12121212,
+            dateissued: '2014-04-02',
+            officername: 'john doe',
+            notes:'lorem epsum'
+        }
+    };
+
+    var renderedHtml =  nunjucks.render('nunjucks.tmpl.html',obj);
+    pdf.create(renderedHtml,report_options).toStream(function(err, stream){
+        console.log(stream);
+        stream.pipe(res);
+    });
+});
+
+app.get('/api/printpdf2', function (req, res) {
     console.log('request made....print 1 ');
     pdf.create(html).toStream(function(err, stream){
         console.log(stream);
@@ -94,56 +126,6 @@ $scope.getPDF = function(){
             
 ```
 
-## Options
-```javascript
-config = {
-
-  // Export options
-  "directory": "/tmp",       // The directory the file gets written into if not using .toFile(filename, callback). default: '/tmp'
-
-  // Papersize Options: http://phantomjs.org/api/webpage/property/paper-size.html
-  "height": "10.5in",        // allowed units: mm, cm, in, px
-  "width": "8in",            // allowed units: mm, cm, in, px
-  - or -
-  "format": "Letter",        // allowed units: A3, A4, A5, Legal, Letter, Tabloid
-  "orientation": "portrait", // portrait or landscape
-
-  // Page options
-  "border": "0",             // default is 0, units: mm, cm, in, px
-  - or -
-  "border": {
-    "top": "2in",            // default is 0, units: mm, cm, in, px
-    "right": "1in",
-    "bottom": "2in",
-    "left": "1.5in"
-  },
-
-  "header": {
-    "height": "45mm",
-    "contents": '<div style="text-align: center;">Author: Marc Bachmann</div>'
-  },
-  "footer": {
-    "height": "28mm",
-    "contents": '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>'
-  },
-
-  // File options
-  "type": "pdf",             // allowed file types: png, jpeg, pdf
-  "quality": "75",           // only used for types png & jpeg
-
-  // Script options
-  "phantomPath": "./node_modules/phantomjs/bin/phantomjs", // PhantomJS binary which should get downloaded automatically
-  "phantomArgs": [], // array of strings used as phantomjs args e.g. ["--ignore-ssl-errors=yes"]
-  "script": '/url',           // Absolute path to a custom phantomjs script, use the file in lib/scripts as example
-  "timeout": 30000           // Timeout that will cancel phantomjs, in milliseconds
-
-}
-```
-
-The full options object gets converted to JSON and will get passed to the phantomjs script as third argument.  
-There are more options concerning the paperSize, header & footer options inside the phantomjs script.
-
-
 ### Todo's
 - Create report printing engine where we have to inject report template's html to node.js project.
 - Report html template will call node.js API to get data and fill html placeholder/{{}} using angular.
@@ -175,3 +157,4 @@ Bhavin Patel
 [Gulp]:http://gulpjs.com
 [node-html-pdf]:https://github.com/marcbachmann/node-html-pdf
 [Body-Parser]:https://github.com/expressjs/body-parser
+[nunjucks]:https://mozilla.github.io/nunjucks/
