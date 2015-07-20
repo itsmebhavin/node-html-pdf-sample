@@ -1,4 +1,4 @@
-<html>
+<html ng-app="sampleapp">
 <head>
     <meta charset="utf8">
     <title>SuitArt Business Card</title>
@@ -43,6 +43,7 @@
             width: 125px;
         }
 
+
         .ghost .eyes {
             z-index: 10;
             position: absolute;
@@ -56,8 +57,20 @@
 
     </style>
 </head>
-<body>
-
+<body ng-controller="appCtrl">
+<h1 style="color:white">{{name}}</h1>
+<table style="color:white" table-bordered>
+    <thead>
+        <th>Id</th>
+        <th>Application</th>
+    </thead>
+    <tbody>
+        <tr ng-repeat="row in tabledata">
+            <td>{{row.id}}</td>
+            <td>{{row.app}}</td>
+        </tr>
+    </tbody>
+</table>
 <div class="bottom">
     <div class="ghost">
         <div class="eyes"></div>
@@ -76,5 +89,35 @@
         <div class="line">8045 zürich</div>
     </div>
 </div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+<script>
+    var app = angular.module('sampleapp',[]);
+    app.controller('appCtrl',function($scope,$http, $q){
+        $scope.name = "Hello Report ...!!";
+        $scope.getData = function(){
+            var q = $q.defer();
+            $http.defaults.headers.common['content-type']= 'application/json';
+            $http.get('http://localhost:1350/api/getsampledataforreport')
+                .success(function (response) {
+                    console.log(response.applications);
+                    q.resolve(response.applications);
+                })
+                .error(function(err){
+                    q.reject(err);
+                });
+            return q.promise;
+        };
+
+        $scope.getData().then(function(data){
+            $scope.tabledata = data;
+        },function(err){
+            console.log('error: ' + err);
+        })
+
+
+    })
+</script>
 </body>
 </html>
