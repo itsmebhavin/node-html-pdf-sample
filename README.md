@@ -94,6 +94,56 @@ $scope.getPDF = function(){
             
 ```
 
+## Options
+```javascript
+config = {
+
+  // Export options
+  "directory": "/tmp",       // The directory the file gets written into if not using .toFile(filename, callback). default: '/tmp'
+
+  // Papersize Options: http://phantomjs.org/api/webpage/property/paper-size.html
+  "height": "10.5in",        // allowed units: mm, cm, in, px
+  "width": "8in",            // allowed units: mm, cm, in, px
+  - or -
+  "format": "Letter",        // allowed units: A3, A4, A5, Legal, Letter, Tabloid
+  "orientation": "portrait", // portrait or landscape
+
+  // Page options
+  "border": "0",             // default is 0, units: mm, cm, in, px
+  - or -
+  "border": {
+    "top": "2in",            // default is 0, units: mm, cm, in, px
+    "right": "1in",
+    "bottom": "2in",
+    "left": "1.5in"
+  },
+
+  "header": {
+    "height": "45mm",
+    "contents": '<div style="text-align: center;">Author: Marc Bachmann</div>'
+  },
+  "footer": {
+    "height": "28mm",
+    "contents": '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>'
+  },
+
+  // File options
+  "type": "pdf",             // allowed file types: png, jpeg, pdf
+  "quality": "75",           // only used for types png & jpeg
+
+  // Script options
+  "phantomPath": "./node_modules/phantomjs/bin/phantomjs", // PhantomJS binary which should get downloaded automatically
+  "phantomArgs": [], // array of strings used as phantomjs args e.g. ["--ignore-ssl-errors=yes"]
+  "script": '/url',           // Absolute path to a custom phantomjs script, use the file in lib/scripts as example
+  "timeout": 30000           // Timeout that will cancel phantomjs, in milliseconds
+
+}
+```
+
+The full options object gets converted to JSON and will get passed to the phantomjs script as third argument.  
+There are more options concerning the paperSize, header & footer options inside the phantomjs script.
+
+
 ### Todo's
 - Create report printing engine where we have to inject report template's html to node.js project.
 - Report html template will call node.js API to get data and fill html placeholder/{{}} using angular.
