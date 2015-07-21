@@ -4,10 +4,12 @@
 
 var express = require('express');
 var http = require('http');
+var path = require ('path');
 var fs = require('fs');
 var bodyParser = require('body-parser');
 var pdf = require('html-pdf');
-var html = fs.readFileSync('./public/clerknotes/index.html', 'utf8');
+var nunjucks = require('nunjucks');
+var html = fs.readFileSync('./public/nunjucks.tmpl.html', 'utf8');
 var loremhtml = fs.readFileSync('./lorem_tmpl.html', 'utf8');
 
 var report_options =
@@ -26,6 +28,12 @@ var report_options =
 
 
 var app = express();
+
+//Nunjucks is a product from Mozilla and we are using it as a template engine.
+nunjucks.configure('public', {
+    autoescape: true,
+    express: app
+});
 
 var port = process.env.port || 1350;
 app.use(express.static(__dirname));
@@ -56,16 +64,20 @@ app.use(function (req, res, next) {
 
 app.get('/api/printpdf1', function (req, res) {
     console.log('request made....print 1 ');
-    var data = {
-        ticketNum : 12121212,
-        dateIssued: '2014-04-02',
-        personName: 'John Doe',
-        notes:' Lorem Ipsum Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ultricies metus ut molestie varius. Aliquam at dui aliquam, eleifend nisl sed, interdum tellus. Nulla in suscipit dolor, eu vehicula nunc. Duis vulputate, odio a accumsan volutpat, orci nisl rutrum lorem, at ultricies tortor enim quis sem. Aenean eget quam tortor. Nulla sollicitudin eleifend magna et tincidunt. Suspendisse quis fringilla eros. Vivamus id purus lacinia, consectetur ex nec, tincidunt quam. Sed vitae augue posuere odio varius pellentesque.'
+    var today = new Date();
+    var obj = {
+        date: today,
+        data:{
+            ticketnum : 12121212,
+            dateissued: '2014-04-02',
+            officername: 'john doe',
+            notes:'lorem epsum'
+        }
     };
 
     //TODO: pass this data object json to html to print this data.
-
-    pdf.create(html,report_options).toStream(function(err, stream){
+    var renderedHtml =  nunjucks.render('nunjucks.tmpl.html',obj);
+    pdf.create(renderedHtml,report_options).toStream(function(err, stream){
         console.log(stream);
         stream.pipe(res);
     });
